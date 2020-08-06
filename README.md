@@ -46,3 +46,7 @@ Configure Grafana to read from the InfluxDB "http://192.168.0.123:8086" with the
 And start creating some custom Dashboard!
 
 NOTE: Doing the Grafana query for some graphic, just select the "measurement" and the "field" (this last one is sometimes not needed) to read specific values in your timelines.
+
+## Special Thanks
+To Mr. [@sbehrends](https://github.com/sbehrends) for the idea and samples that evolved into a stand-alone ISP monitor. (his implementation is even greater with a dedicated cloud server, TLS, etc.)
+My original implementation was the speedtest-cli sending JSON to IFTTT and from there to my personal Google Drive but having influxDb+Grafana is way better than Google Drive spreadsheet graphics capability and escalates easier
