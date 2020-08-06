@@ -25,7 +25,11 @@ services:
       - grafana:/var/lib/grafana
     ports:
       - 3000:3000
+    depends_on:
+      - influx
 
   telegraf:
     build: ./telegraf
     restart: always
+    depends_on:
+      - influx
