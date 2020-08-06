@@ -14,12 +14,12 @@ Note 2: we will assume that you finished the balena "get started" section with b
 
 # 2nd Step: Understanding the code...
 These are just some hardcoded values you may change depending on your implementation:
-My ISP DNS: 181.45.64.77
-My Router: 192.168.0.1
-Database: speedtest
-Database User: root
-Daabase Pass: password
-Raspberry static IP: 192.168.0.123
+- My ISP DNS: 181.45.64.77
+- My Router: 192.168.0.1
+- Database: speedtest
+- Database User: root
+- Daabase Pass: password
+- Raspberry static IP: 192.168.0.123
 
 The project is a Docker Compose file that will install:
 - InfluxDB as the open source time-oriented data base, listening in port 8086, persisting values upon restarts and create a "speedtest" database with root:password credentials
