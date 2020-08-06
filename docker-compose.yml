@@ -1,0 +1,31 @@
+version: '2.1'
+
+volumes:
+  influx:
+  grafana:
+
+services:
+
+  influx:
+    image: hypriot/rpi-influxdb
+    restart: always
+    volumes:
+      - influx:/data
+    ports:
+      - 8086:8086
+    environment:
+      - PRE_CREATE_DB="speedtest"
+      - ADMIN_USER="root"
+      - INFLUXDB_INIT_PWD="password"
+
+  grafana:
+    image: grafana/grafana-arm32v7-linux
+    restart: always
+    volumes:
+      - grafana:/var/lib/grafana
+    ports:
+      - 3000:3000
+
+  telegraf:
+    build: ./telegraf
+    restart: always
