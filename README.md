@@ -49,6 +49,11 @@ NOTE: Doing the Grafana query for some graphic, just select the "measurement" an
 
 ## Special Thanks
 To Mr. [@sbehrends](https://github.com/sbehrends) for the idea and samples that evolved into a stand-alone ISP monitor. (his implementation is even greater with a dedicated cloud server, TLS, etc.)
-My original implementation was the speedtest-cli sending JSON to IFTTT and from there to my personal Google Drive but having influxDb+Grafana is way better than Google Drive spreadsheet graphics capability and escalates easier
+My original implementation was the speedtest-cli sending JSON to IFTTT and from there to my personal Google Drive but having influxDb+Grafana is way better than Google Drive spreadsheet graphics capability and escalates easier.
 
-To the Ookla team for the speedtest.net CLI tool, more info [Github](https://github.com/teamookla), [Facebook](https://www.facebook.com/speedtest) or [Twitter](https://twitter.com/speedtest)
+To the Ookla team for the speedtest.net CLI tool, more info [Github](https://github.com/teamookla), [Facebook](https://www.facebook.com/speedtest) or [Twitter](https://twitter.com/speedtest).
+
+## Disclaimer
+This example is provided as a reference for your own usage and is not to be considered my own product.
+By using it, you are approving the license from different products and regulations like Speedtest, Telegraf, InfluxDB, Grafana, Docker, RGPD and more.
+This article involves products and technologies which do not form part of my catalog. Technical assistance for such products is limited to this article.
