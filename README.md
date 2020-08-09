@@ -37,7 +37,7 @@ Go to the root folder.
 And run: 
 ```$ balena push First-App-RaspberryPi3```
 
-## 4th Step: 
+## 4th Step: Start your dashboards in Grafana
 Wait for a few minutes until it´s fully deployed.
 Additional logs available at balena.io if you access the device.
 You´ll notice that balena.io shows 3 services running at the device, "Influx", "Grafana" and "Telegraf", you may read logs or SSH to them from there.
@@ -46,6 +46,14 @@ Configure Grafana to read from the InfluxDB "http://192.168.0.123:8086" with the
 And start creating some custom Dashboard!
 
 NOTE: Doing the Grafana query for some graphic, just select the "measurement" and the "field" (this last one is sometimes not needed) to read specific values in your timelines.
+
+## 5th Step: [OPTIONAL] Limit your influxDB measurements
+You may have a limited storage for your measurements, so you may change the database default retention policy (how long to wait until deleting old data) to make sure it´s not affecting your Raspberry Pi microSD capacity. To do so, just go to balena.io and log into the Influx Docker through SSH (not the Host) and run the following SQL inside influx.
+```
+$ influx
+> CREATE RETENTION POLICY speedtest90days ON speedtest DURATION 90d REPLICATION 1 DEFAULT
+```
+That would create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them.
 
 ## Special Thanks
 To Mr. [@sbehrends](https://github.com/sbehrends) for the idea and samples that evolved into a stand-alone ISP monitor. (his implementation is even greater with a dedicated cloud server, TLS, etc.)
