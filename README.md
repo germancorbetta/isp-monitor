@@ -22,7 +22,7 @@ These are just some hardcoded values you may change depending on your implementa
 - My Router: 192.168.0.1
 - Database: speedtest
 - Database User: root
-- Daabase Pass: password
+- Database Pass: password
 - Raspberry static IP: 192.168.0.123
 
 The project is a Docker Compose file that will install:
