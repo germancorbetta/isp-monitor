@@ -2,7 +2,11 @@
 ISP monitor using a Raspberry PI with balena.io, Telegraf agent, Speedtest CLI, InfluxDB and Grafana
 
 ## Objective
-To finish with some automated ISP monitoring system like this
+To finish with some automated ISP monitoring system like this:
+
+![Schema Example](/final-schema.png)
+
+And eventually get graphics like this:
 
 ![Grafana Example](/grafana-example.png)
 
