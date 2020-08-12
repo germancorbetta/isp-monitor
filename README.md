@@ -15,6 +15,9 @@ And eventually get graphics like this:
 - Balena CLI:
   - Windows/Linux: https://github.com/balena-io/balena-cli/blob/master/INSTALL.md
   - MacOS: run `brew install balena-cli` (require [Homebrew](https://docs.brew.sh/Installation))
+- Know your ISP DNS(s) IP address(es)
+- Know your Router/Modem IP address (usually is 192.168.0.1)
+- Know the Raspberry Pi IP in advance if possible, if now it will be displayed in the application dashboard at Balena. (Step 1.c)
 
 ## 1) Setup Balena App and device
 ***1.a Account:***
@@ -35,6 +38,7 @@ And eventually get graphics like this:
   - Unzip the file and burn the .img file to the SD card with [Etcher](https://www.balena.io/etcher/).
   - Insert the SD card into the RaspberryPi, connect it to the network and power it on.
   - After a moment you should see the device on the application's dashboard.
+  - If needed, you will see the Raspberry PI ip address after a few minutes.
 
 
 ## 2) Deploy the code to the Balena application and Device.
@@ -56,16 +60,15 @@ And eventually get graphics like this:
 ## 3) Management and configuration
 
 ***3.a Services Install Confirmation:***
-- At the Balena dashboard, access the application `isp-monitor` and on the summary section, at the bottom you should see the ***Services*** section with the following services up and running:
+- At the Balena dashboard, access the application `isp-monitor` and on the summary section, at the bottom you should see the ***Services*** section with the following services up and running: (Note: May take a few minutes)
   - Grafana
   - InfluxDB
   - Telegraf
 
+
 ***3.b Configure InfluxDB Data retention policy***
 - From the balena application dashboard, on the lower right side, open a terminal to INFLUX.
-- Run the command `influx` and then `CREATE RETENTION POLICY speedtest90days ON speedtest DURATION 90d REPLICATION 1 DEFAULT`.
-- That would create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them.
-You can change those number depending on the size of your SD card.
+- Run the command `influx` and then `CREATE RETENTION POLICY speedtest90days ON speedtest DURATION 90d REPLICATION 1 DEFAULT`. That will create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them. You can change those number depending on the size of your SD card.
 
 
 ***3.c Configure Grafana Data source***
@@ -84,7 +87,7 @@ You can change those number depending on the size of your SD card.
 
 ***3.d Configure Grafana dashboard***
 - On the left side of the screen, click on the ***+*** icon and create a new dashboard.
-- Create different panels changing the "measurement" from "FROM" and "field(value)" from "SELECT", here are some examples:
+- Create different panels changing the "measurement" from "FROM" and "field(value)" from "SELECT", here are some examples: (click on the pencil icon to add the query it like this)
   - Average response time from DNS server: `SELECT mean("query_time_ms") FROM "dns_query" WHERE $timeFilter GROUP BY time($__interval) fill(null)`
   - Raspberry Pi CPU temperature: `SELECT mean("value")  / 1000 FROM "execcputemp" WHERE $timeFilter GROUP BY time($__interval) fill(null)`
 - Clic on Apply (Upper right)
