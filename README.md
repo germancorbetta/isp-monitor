@@ -107,9 +107,9 @@ Services:
   - Complete the process
   - `morning-night` is the name of my device, yours will be different. Edit each panel and update that value.
 
-- Use the "oficial" one:
+- Import one from the Grafana site:
   - https://grafana.com/grafana/dashboards/12428
-   
+
 You are done!
 
 ***Note:*** The RaspberryPi3 LAN port is 10/100 so if your internet connection is above that, any measurement will cap around 100Mbps. You can use an adapter to archive greater speeds.
