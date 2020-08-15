@@ -63,3 +63,13 @@ services:
     environment:
       - DNSCRYPT_LISTEN_PORT=5053
       - DNSCRYPT_SERVER_NAMES=['scaleway-fr','google','yandex','cloudflare']
+  piholeinflux:
+    image: registry.gitlab.com/janw/pi-hole-influx:armv7
+    restart: always
+    environment:
+      PIHOLE_INFLUXDB_HOST: "192.168.0.43"
+      PIHOLE_INFLUXDB_PORT: "8086"
+      PIHOLE_INFLUXDB_USERNAME: "root"
+      PIHOLE_INFLUXDB_PASSWORD: "password"
+      PIHOLE_INFLUXDB_DATABASE: "speedtest"
+      PIHOLE_INSTANCES: "pihole=http://192.168.0.43/admin/api.php"
