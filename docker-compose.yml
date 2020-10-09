@@ -54,7 +54,7 @@ services:
       - INTERFACE=eth0
       - DNS1=127.0.0.1
       - DNS2=127.0.0.1#5053
-      - ServerIP=192.168.0.43
+      - ServerIP=192.168.1.222
   dnscrypt-proxy:
     image: djaydev/dnscrypt-proxy:arm32v7
     ports:
@@ -67,9 +67,9 @@ services:
     image: registry.gitlab.com/janw/pi-hole-influx:armv7
     restart: always
     environment:
-      PIHOLE_INFLUXDB_HOST: "192.168.0.43"
+      PIHOLE_INFLUXDB_HOST: "192.168.1.222"
       PIHOLE_INFLUXDB_PORT: "8086"
       PIHOLE_INFLUXDB_USERNAME: "root"
       PIHOLE_INFLUXDB_PASSWORD: "password"
       PIHOLE_INFLUXDB_DATABASE: "speedtest"
-      PIHOLE_INSTANCES: "pihole=http://192.168.0.43/admin/api.php"
+      PIHOLE_INSTANCES: "pihole=http://192.168.1.222/admin/api.php"
