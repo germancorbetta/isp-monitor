@@ -59,6 +59,10 @@ $ influx
 ```
 That would create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them.
 
+## 6th Step: [OPTIONAL] Analyze the results after a long time...
+This project has been very useful for me to track and evaluate my ISP, using it I was able to get approval to change the ISP and also request the money back due to having real information about the service outages.
+But! having the database inside the Raspberry forced a lot of I/O events that eventually corrupted the SD card a few times in the last 6 months, also losing the entire database. So to avoid the issue, I removed most of the I/O events by just moving to a Raspberry + Cloud solution that I will talk about in another project. As a spoiler, I can confirm that I´m using the same Balena.io + Telegraf on the Raspberry, but having the InfluxDB and on the Cloud using an InfluxDB Cloud Free Tier. 
+
 ## Special Thanks
 To Mr. [@sbehrends](https://github.com/sbehrends) for the idea and samples that evolved into a stand-alone ISP monitor. (his implementation is even greater with a dedicated cloud server, TLS, etc.)
 My original implementation was the speedtest-cli sending JSON to IFTTT and from there to my personal Google Drive but having influxDb+Grafana is way better than Google Drive spreadsheet graphics capability and escalates easier.
