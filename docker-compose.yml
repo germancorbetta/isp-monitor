@@ -1,11 +1,10 @@
 version: '2.1'
-
 volumes:
   influx:
   grafana:
-
+  pihole:
+  dnsmasq:
 services:
-
   influx:
     image: hypriot/rpi-influxdb
     restart: always
@@ -17,7 +16,6 @@ services:
       - PRE_CREATE_DB="speedtest"
       - ADMIN_USER="root"
       - INFLUXDB_INIT_PWD="password"
-
   grafana:
     image: grafana/grafana-arm32v7-linux
     restart: always
@@ -27,9 +25,51 @@ services:
       - 3000:3000
     depends_on:
       - influx
-
+    environment:
+     - GF_AUTH_TOKEN_ROTATION_INTERVAL_MINUTES=600
   telegraf:
     build: ./telegraf
     restart: always
     depends_on:
       - influx
+  pihole:
+    image: pihole/pihole:4.3.1-4_armhf
+    ports:
+      - '53:53'
+      - '67:67'
+      - '80:80'
+      - '443:443'
+    volumes:
+      - pihole:/etc/pihole
+      - dnsmasq:/etc/dnsmasq.d
+    entrypoint: ['/bin/bash', '-c', 'echo "127.0.0.1 $HOSTNAME" >> /etc/hosts; echo "bind-interfaces" >> /etc/dnsmasq.conf; /s6-init']
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - dnscrypt-proxy
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
+      - WEBPASSWORD=pihole
+      - INTERFACE=eth0
+      - DNS1=127.0.0.1
+      - DNS2=127.0.0.1#5053
+      - ServerIP=192.168.1.222
+  dnscrypt-proxy:
+    image: djaydev/dnscrypt-proxy:arm32v7
+    ports:
+      - 5053:5053
+    network_mode: host
+    environment:
+      - DNSCRYPT_LISTEN_PORT=5053
+      - DNSCRYPT_SERVER_NAMES=['scaleway-fr','google','yandex','cloudflare']
+  piholeinflux:
+    image: registry.gitlab.com/janw/pi-hole-influx:armv7
+    restart: always
+    environment:
+      PIHOLE_INFLUXDB_HOST: "192.168.1.222"
+      PIHOLE_INFLUXDB_PORT: "8086"
+      PIHOLE_INFLUXDB_USERNAME: "root"
+      PIHOLE_INFLUXDB_PASSWORD: "password"
+      PIHOLE_INFLUXDB_DATABASE: "speedtest"
+      PIHOLE_INSTANCES: "pihole=http://192.168.1.222/admin/api.php"

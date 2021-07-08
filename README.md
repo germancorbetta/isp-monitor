@@ -1,63 +1,151 @@
-# isp-monitor
+# isp-monitor + DNS
 ISP monitor using a Raspberry PI with balena.io, Telegraf agent, Speedtest CLI, InfluxDB and Grafana
 
 ## Objective
-To finish with some automated ISP monitoring system like this:
 
-![Schema Example](/final-schema.png)
+The end goal is to have several network services running on a Raspberry Pi:
 
-And eventually get graphics like this:
+![Schema Example](/schema.png)
 
-![Grafana Example](/grafana-example.png)
+Services:
 
-## 1st Step: balena.io account
-Create an account in balena.io to get your Raspberry up and running.
-Follow balena.io "Get Started" page until you have your account with a balena Application and your Raspberry Pi device in it.
-For the purpose of this guide, let´s assume that your balena.io application name is "First-App-RaspberryPi3".
+- Monitor your internet connection
 
-Note: balena applications are like a group of devices that will eventually deploy the same services.
+![Grafana Example](/grafana.png)
 
-Note 2: we will assume that you finished the balena "get started" section with balena-cli installed in your main computer (not the Raspberry).
+- Use Pihole to block unwanted DNS queries, and enable secure and encrypted DNS connections with DNSCrypt-Proxy
+
+![Pihole Example](/pihole.png)
 
 
-## 2nd Step: Understanding the code...
-These are just some hardcoded values you may change depending on your implementation:
-- My ISP DNS: 181.45.64.77
-- My Router: 192.168.0.1
-- Database: speedtest
-- Database User: root
-- Database Pass: password
-- Raspberry static IP: 192.168.0.123
+## 0) What do you need:
 
-The project is a Docker Compose file that will install:
-- InfluxDB as the open source time-oriented data base, listening in port 8086, persisting values upon restarts and create a "speedtest" database with root:password credentials.
-- Grafana as the open source graphic UI that you´ll need to configure at the end, listening in port 3000.
-- Telegraf as the capture agent to gather files or even run external processes.
-- SpeedTest-cli as the command-line tool to analyze your ISP. More info in speedtest.net.
+- Balena CLI installed:
+  - Windows/Linux: https://github.com/balena-io/balena-cli/blob/master/INSTALL.md
+  - MacOS: run `brew install balena-cli` (require [Homebrew](https://docs.brew.sh/Installation))
+- A Raspberry Pi 3b board
+- Know your ISP DNS(s) IP address(es)
+- Know your Router IP address (usually is 192.168.0.1)
+- Know the Raspberry Pi IP in advance if possible, if now it will be displayed in the application dashboard at Balena. (Step 1.c)
 
-## 3rd Step: Run it!
-Download this repository files in your main computer (not the Raspberry).
-Go to the root folder.
-And run: 
-```$ balena push First-App-RaspberryPi3```
 
-## 4th Step: Start your dashboards in Grafana
-Wait for a few minutes until it´s fully deployed.
-Additional logs available at balena.io if you access the device.
-You´ll notice that balena.io shows 3 services running at the device, "Influx", "Grafana" and "Telegraf", you may read logs or SSH to them from there.
-Once it´s working, just go to http://192.168.0.123:3000 (default user admin:admin).
-Configure Grafana to read from the InfluxDB "http://192.168.0.123:8086" with the InfluxDB Details (user: root, password: password).
-And start creating some custom Dashboard!
+## 1) Setup Balena App and device
+***1.a Account:***
+- Go to [balena.io](https://dashboard.balena-cloud.com/login) and sign up for a account or log in using google or github.
 
-NOTE: Doing the Grafana query for some graphic, just select the "measurement" and the "field" (this last one is sometimes not needed) to read specific values in your timelines.
+***1.b Application:***
+- Once you access the account, create a new application:
+  - ***Application Name***: for this demo, use **isp-monitor**
+  - ***Device Type***: Select the type od SoC you will use, in my case I have a Raspberry 3b so I will select **Raspberry Pi 3**
+  - ***Application Type***: Leave the default (**Starter**)
+  - Click in "Create new application"
 
-## 5th Step: [OPTIONAL] Limit your influxDB measurements
-You may have a limited storage for your measurements, so you may change the database default retention policy (how long to wait until deleting old data) to make sure it´s not affecting your Raspberry Pi microSD capacity. To do so, just go to balena.io and log into the Influx Docker through SSH (not the Host) and run the following SQL inside influx.
-```
-$ influx
-> CREATE RETENTION POLICY speedtest90days ON speedtest DURATION 90d REPLICATION 1 DEFAULT
-```
-That would create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them.
+***1.c Device:***
+- Now that the application is ready, lets setup the device:
+  - At the application Click **Add device** on the top left corner
+  - Leave all the default values and only change (if needed), the Network connection for Ethernet only or Ethernet & Wifi.
+  - At the bottom, Click on the button to download the OS image.
+  - Unzip the file and burn the .img file to the SD card with [Etcher](https://www.balena.io/etcher/).
+  - Insert the SD card into the RaspberryPi, connect it to the network and power it on.
+  - After a moment you should see the device on the application's dashboard.
+  - If needed, you will see the Raspberry PI ip address after a few minutes.
+
+
+## 2) Deploy the code to the Balena application and Device.
+
+***Push and deploy the code:***
+  - From a terminal, at the project folder run the commands:
+    - `balena login` to login into balena.io
+    - `balena push isp-monitor` to push the code to the application
+    - If all goes well you should see the three apps deployed and the unicorn in ascii code.
+
+## 3) Management and configuration
+
+***3.a Services Install Confirmation:***
+- At the Balena dashboard, access the application `isp-monitor` and on the summary section, at the bottom you should see the ***Services*** section with the following services up and running: (Note: May take a few minutes)
+
+  - Grafana
+  - InfluxDB
+  - Telegraf
+  - Pihole
+  - DNSCrypt-Proxy
+
+***3.b Configure InfluxDB Data retention policy***
+- From the balena application dashboard, on the lower right side, open a terminal to INFLUX.
+- Run the command `influx` and then `CREATE RETENTION POLICY speedtest90days ON speedtest DURATION 90d REPLICATION 1 DEFAULT`. That will create a new retention policy to overwrite the default one, to keep every measurement in the "speedtest" database for up to 90 days before deleting them. You can change those number depending on the size of your SD card.
+
+***3.c Configure Environment variables***
+- From the balena application dashboard, on the left, select 'Device Service Variables'
+- Click on "add variable"
+- Select the service "telegraf"
+- Add the corresponing variable for the isp dns servers, router and raspi ip addresses. (dont change the variable name, just the value)
+
+![variables Example](/balena_variables.png)
+
+***3.d Configure Grafana Data source***
+- From your computer, Go to https://***RASPI_IP***:3000
+  - username: ***admin***
+  - password: ***admin***   
+- Select "Add data source" and then InfluxDB as the source type.
+- Under HTTP, add the URL http://***RASPI_IP***:8086
+- Use the following InfluxDB Details:
+  - Database: ***speedtest***
+  - Database User: ***root***
+  - Database Pass: ***password***
+  - Method: ***GET***
+- At the bottom, click on **SAVE AND TEST**, if you get a green banner, you are good.
+- Click on ***BACK*** to go to the main menu and continue with the dashboard.
+
+***3.d The Grafana dashboard***
+- Create your own:
+  - On the left side of the screen, click on the ***+*** icon and create a new dashboard.
+  - Create different panels changing the "measurement" from "FROM" and "field(value)" from "SELECT".
+  - Note that some values like the the network speed need to be recalculated by adding the math component. Here is an example: `SELECT last("download_bandwidth")  / 131072 FROM "Speedtest" WHERE ("host" = 'morning-night') AND $timeFilter GROUP BY time($__interval) fill(null)` morning-night is the name of the device, your will be different, click on it and change it.
+- Import mine:
+  - On the left side of the screen, click on the ***+*** icon and select IMPORT.
+  - Select the file `GrafanaDashboard.json` included in this repo.
+  - Complete the process
+  - `morning-night` is the name of my device, yours will be different. Edit each panel and update that value.
+
+- Import one from the Grafana site:
+  - https://grafana.com/grafana/dashboards/12428
+
+You are done!
+
+***Note:*** The RaspberryPi3 LAN port is 10/100 so if your internet connection is above that, any measurement will cap around 100Mbps. You can use an adapter to archive greater speeds.
+
+## 4) DNS server
+
+***4.a Update pihole admin password***
+- From the balena app dashboard, open the terminal for the pihole service.
+- Run the command `sudo pihole -a -p`
+- type and confirm the password
+
+***4.b Access Pihole and update it***
+- Open in a browser http://[RASPI_IP]/admin
+- click on LOGIN and type the password.
+- Go to TOOLS -> UPDATE GRAVITY.
+- Click on 'UPDATE'
+
+***4.c Update the devices on your network to user the RASPI_IP as DNS Server***
+- Do I have to explain this part?
+
+## 5) Behind the scenes
+
+***MONITORING:***
+
+**Telegraf** will do measure the internet bandwidth using speedtest-cli, also will measure average pings response times from google.com, 8.8.8.8 (google DNS), 1.1.1.1 (CloudFlare) your router, and the ISP DNS servers. Finally will perform dns queries to the ISP dns servers, google and cloudflre and measure the response time among other data capture.
+
+All this information will be stored in the ***Influx*** database.
+
+Finally, ***Grafana*** will query and display the data from Influx in different dashboard and panels we can customize to our needs.
+
+For more information on how to configure Telegraf, visite this [repo](https://github.com/influxdata/telegraf/blob/master/docs/CONFIGURATION.md)
+
+***DNS:***
+
+In short, Pihole block any unwanted DNS queries from the client (your computer assuming you setup the Pihole ip as primary dns server), but also, by the addition of the DNSCrypt Proxy, any DNS is automatically encrypted avoiding DNS Snooping.
+
 
 ## 6th Step: [OPTIONAL] Analyze the results after a long time...
 This project has been very useful for me to track and evaluate my ISP, using it I was able to get approval to change the ISP and also request the money back due to having real information about the service outages.
@@ -65,11 +153,13 @@ But! having the database inside the Raspberry forced a lot of I/O events that ev
 
 ## Special Thanks
 To Mr. [@sbehrends](https://github.com/sbehrends) for the idea and samples that evolved into a stand-alone ISP monitor. (his implementation is even greater with a dedicated cloud server, TLS, etc.)
+
 My original implementation was the speedtest-cli sending JSON to IFTTT and from there to my personal Google Drive but having influxDb+Grafana is way better than Google Drive spreadsheet graphics capability and escalates easier.
 
 To the Ookla team for the speedtest.net CLI tool, more info [Github](https://github.com/teamookla), [Facebook](https://www.facebook.com/speedtest) or [Twitter](https://twitter.com/speedtest).
 
 ## Disclaimer
 This example is provided as a reference for your own usage and is not to be considered my own product.
+
 By using it, you are approving the license from different products and regulations like Speedtest, Telegraf, InfluxDB, Grafana, Docker, RGPD and more.
 This article involves products and technologies which do not form part of my catalog. Technical assistance for such products is limited to this article.
